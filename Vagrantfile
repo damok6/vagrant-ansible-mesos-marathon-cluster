@@ -7,7 +7,7 @@
 # you're doing.
 
 ANSIBLE_GROUPS = {
-              "master" => ["master"],
+              "master" => ["node1"],
               "nodes" => ["node2", "node3", "node4"],
               "all_groups:children" => ["master", "nodes"]
             }
@@ -26,12 +26,10 @@ Vagrant.configure(2) do |config|
 		vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]		
 	end
 	
-    config.vm.define "master" do |master|
-        master.vm.network "private_network", ip: "192.168.33.20"
-        master.vm.hostname = "master"
-		config.vm.provision "shell",
-			inline: "sudo apt-get -y install python-software-properties software-properties-common gcc make build-essential libssl-dev libffi-dev python-dev"
-        master.vm.provision "guest_ansible", run: "always" do |ansible|
+    config.vm.define "node1" do |node1|
+        node1.vm.network "private_network", ip: "192.168.33.20"
+        node1.vm.hostname = "node1"
+        node1.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS
         end

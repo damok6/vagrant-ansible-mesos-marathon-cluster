@@ -28,7 +28,9 @@ Vagrant.configure(2) do |config|
 	
     config.vm.define "node1" do |node1|
         node1.vm.network "private_network", ip: "192.168.33.20"
-        node1.vm.hostname = "node1"
+        node1.vm.hostname = "node1" 
+		node1.vm.provision "shell",
+			inline: "sudo apt-get -y install python-software-properties software-properties-common gcc make build-essential libssl-dev libffi-dev python-dev"
         node1.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS

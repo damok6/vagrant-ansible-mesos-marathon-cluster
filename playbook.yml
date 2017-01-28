@@ -1,0 +1,69 @@
+---
+- hosts: master
+  remote_user: vagrant
+  become: yes
+  become_method: sudo
+  tasks:
+      - include: install_java_8.yml
+      - name: update hosts file
+        template: src=./hosts.j2 dest=/etc/hosts
+      - name: add mesos key
+        apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
+      - name: add mesos repo
+        shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
+      - name: install mesos marathon
+        apt: name=mesos,marathon update_cache=yes
+#      - name: install docker
+#        shell: curl -fsSL https://get.docker.com/ | sudo sh
+#        args:
+#          chdir: /home/vagrant/
+#      - name: configure containerizers
+#        lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
+#      - name: lengthen registration timeout
+#        lineinfile: dest=/etc/mesos-slave/executor_registration_timeout create=yes line="5mins"
+      - name: configure zookeeper ID
+        shell: echo "1" | sudo tee /etc/zookeeper/conf/myid
+      - name: set zookeeper master
+        replace: dest=/etc/mesos/zk regexp="localhost" replace="192.168.33.20"
+      - name: set explicit master ip
+        shell: sh -c "echo 192.168.33.20 > /etc/mesos-master/ip"
+      - name: restart zookeeper
+        service: name=zookeeper state=restarted enabled=yes
+      - name: (re)start mesos-master
+        service: name=mesos-master state=restarted enabled=yes
+      - name: (re)start mesos-slave
+        service: name=mesos-slave state=restarted enabled=yes
+      - name: (re)start marathon
+        service: name=marathon state=restarted enabled=yes
+- hosts: nodes
+  remote_user: vagrant
+  become: yes
+  become_method: sudo
+  tasks:
+      - include: install_java_8.yml
+      - name: update hosts file
+        template: src=./hosts.j2 dest=/etc/hosts
+      - name: add mesos key
+        apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
+      - name: add mesos repo
+        shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
+      - name: install mesos 
+        apt: name=mesos update_cache=yes
+#      - name: install docker
+#        shell: curl -fsSL https://get.docker.com/ | sudo sh
+#      - name: configure containerizers
+#        lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
+#      - name: lengthen registration timeout
+#        lineinfile: dest=/etc/mesos-slave/executor_registration_timeout create=yes line="5mins"		
+      - name: set zookeeper master
+        replace: dest=/etc/mesos/zk regexp="localhost" replace="192.168.33.20"
+      - name: stop zookeeper
+        service: name=zookeeper state=stopped
+      - name: disable zookeeper
+        shell: sh -c "echo manual > /etc/init/zookeeper.override"
+      - name: stop mesos-master
+        service: name=mesos-master state=stopped
+      - name: disable mesos-master
+        shell: sh -c "echo manual > /etc/init/mesos-master.override"
+      - name: (re)start mesos-slave
+        service: name=mesos-slave state=started enabled=yes

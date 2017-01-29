@@ -13,7 +13,8 @@ ANSIBLE_GROUPS = {
             }
 
 Vagrant.configure(2) do |config|
-    config.vm.box = "ubuntu/xenial64"
+#    config.vm.box = "ubuntu/xenial64"
+    config.vm.box = "ubuntu/trusty64"
 #	config.vm.synced_folder ".", "/vagrant", disabled: true
 	
 	# DK: to allow ansible to use a version in the guest os instead of needing one in the host OS, which does not work in Windows
@@ -26,11 +27,15 @@ Vagrant.configure(2) do |config|
 		vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]		
 	end
 	
+	config.vm.provision "shell", path: "install_ansible.sh"
+	
     config.vm.define "node1" do |node1|
         node1.vm.network "private_network", ip: "192.168.33.20"
         node1.vm.hostname = "node1" 
-		node1.vm.provision "shell",
-			inline: "sudo apt-get -y install python-software-properties software-properties-common gcc make build-essential libssl-dev libffi-dev python-dev"
+		node1.vm.provider "virtualbox" do |vb|
+			vb.cpus = 3
+			vb.memory = "3024"
+		end
         node1.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS
@@ -40,6 +45,8 @@ Vagrant.configure(2) do |config|
     config.vm.define "node2" do |node2|
         node2.vm.network "private_network", ip: "192.168.33.21"
         node2.vm.hostname = "node2"
+#		node2.vm.provision "shell",
+#			inline: "sudo apt-get -y install python-software-properties software-properties-common gcc make build-essential libssl-dev libffi-dev python-dev"
         node2.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS

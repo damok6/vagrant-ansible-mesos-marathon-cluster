@@ -7,8 +7,8 @@
 # you're doing.
 
 ANSIBLE_GROUPS = {
-              "master" => ["node1"],
-              "nodes" => ["node2", "node3", "node4"],
+              "master" => ["master"],
+              "nodes" => ["node1", "node2", "node3", "node4"],
               "all_groups:children" => ["master", "nodes"]
             }
 
@@ -22,30 +22,32 @@ Vagrant.configure(2) do |config|
 	# DK: actually do this manually below by using "guest_ansible" instead of "ansible" for the provisioner
 
 	config.vm.provider "virtualbox" do |vb|
-		vb.memory = "2048"
-		vb.cpus = 2
 		vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]		
 	end
 	
 	config.vm.provision "shell", path: "install_ansible.sh"
 	
-    config.vm.define "node1" do |node1|
-        node1.vm.network "private_network", ip: "192.168.33.20"
-        node1.vm.hostname = "node1" 
-		node1.vm.provider "virtualbox" do |vb|
-			vb.cpus = 3
-			vb.memory = "3024"
+    config.vm.define "master" do |master|
+        master.vm.network "private_network", ip: "192.168.33.20"
+        master.vm.hostname = "master" 
+		master.vm.provider "virtualbox" do |vb|
+			vb.cpus = 1
+			vb.memory = "1024"
 		end
-        node1.vm.provision "guest_ansible", run: "always" do |ansible|
+        master.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS
         end
     end
 
-	(2..3).each do |i|
+	(1..4).each do |i|
 		config.vm.define "node#{i}" do |node|
 			node.vm.network "private_network", ip: "192.168.33.2#{i}"
 			node.vm.hostname = "node#{i}"
+			node.vm.provider "virtualbox" do |vb|
+				vb.cpus = 2
+				vb.memory = "3072"
+			end
 			node.vm.provision "guest_ansible", run: "always" do |ansible|
 				ansible.playbook = "playbook.yml"
 				ansible.groups = ANSIBLE_GROUPS

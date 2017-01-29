@@ -31,7 +31,7 @@
         service: name=zookeeper state=restarted enabled=yes
       - name: (re)start mesos-master
         service: name=mesos-master state=restarted enabled=yes
-      - name: (re)start mesos-slave
+      - name: Stop mesos-slave
         service: name=mesos-slave state=stopped enabled=yes
       - name: (re)start marathon
         service: name=marathon state=restarted enabled=yes

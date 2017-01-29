@@ -42,15 +42,15 @@ Vagrant.configure(2) do |config|
         end
     end
 
-    config.vm.define "node2" do |node2|
-        node2.vm.network "private_network", ip: "192.168.33.21"
-        node2.vm.hostname = "node2"
-#		node2.vm.provision "shell",
-#			inline: "sudo apt-get -y install python-software-properties software-properties-common gcc make build-essential libssl-dev libffi-dev python-dev"
-        node2.vm.provision "guest_ansible", run: "always" do |ansible|
-            ansible.playbook = "playbook.yml"
-            ansible.groups = ANSIBLE_GROUPS
-        end
-    end
+	(2..3).each do |i|
+		config.vm.define "node#{i}" do |node|
+			node.vm.network "private_network", ip: "192.168.33.2#{i}"
+			node.vm.hostname = "node#{i}"
+			node.vm.provision "guest_ansible", run: "always" do |ansible|
+				ansible.playbook = "playbook.yml"
+				ansible.groups = ANSIBLE_GROUPS
+			end
+		end
+	end
 
 end

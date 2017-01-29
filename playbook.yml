@@ -13,14 +13,6 @@
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
       - name: install mesos marathon
         apt: name=mesos,marathon update_cache=yes
-#      - name: install docker
-#        shell: curl -fsSL https://get.docker.com/ | sudo sh
-#        args:
-#          chdir: /home/vagrant/
-#      - name: configure containerizers
-#        lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
-#      - name: lengthen registration timeout
-#        lineinfile: dest=/etc/mesos-slave/executor_registration_timeout create=yes line="5mins"
       - name: configure zookeeper ID
         shell: echo "1" | sudo tee /etc/zookeeper/conf/myid
       - name: set zookeeper master

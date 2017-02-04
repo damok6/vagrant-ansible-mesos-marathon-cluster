@@ -11,8 +11,10 @@
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
       - name: add mesos repo
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
-      - name: install mesos marathon
-        apt: name=mesos,marathon update_cache=yes
+      - name: install mesos marathon pip
+        apt: name=mesos,marathon,python-pip update_cache=yes
+      - name: install docker
+        shell: curl -fsSL https://get.docker.com/ | sudo sh
       - name: configure zookeeper ID
         shell: echo "1" | sudo tee /etc/zookeeper/conf/myid
       - name: set zookeeper master
@@ -27,6 +29,24 @@
         service: name=mesos-slave state=stopped enabled=yes
       - name: (re)start marathon
         service: name=marathon state=restarted enabled=yes
+      - name: Install Python Docker 
+        pip:
+          name: docker-py
+      - name: Create Marathon-LB Container
+        docker_container:
+          name: mlb
+          image: mesosphere/marathon-lb
+          command: sse --group external --marathon http://192.168.33.20:8080
+          state: started
+          privileged: yes
+          restart_policy: always
+          ports:
+            - "80:80"
+            - "443:443"
+            - "9090:9090"
+            - "10000:10000"
+          env:
+            PORTS: 9090
 - hosts: nodes
   remote_user: vagrant
   become: yes

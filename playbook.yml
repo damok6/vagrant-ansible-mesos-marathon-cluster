@@ -47,6 +47,8 @@
         lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
       - name: lengthen registration timeout
         lineinfile: dest=/etc/mesos-slave/executor_registration_timeout create=yes line="5mins"		
+      - name: Force Mesos Slaves to be resolved by IP addresses instead of hostnames
+        lineinfile: dest=/etc/mesos-slave/hostname_lookup create=yes line="false"
       - name: set zookeeper master
         replace: dest=/etc/mesos/zk regexp="localhost" replace="192.168.33.20"
       - name: stop zookeeper
@@ -58,4 +60,4 @@
       - name: disable mesos-master
         shell: sh -c "echo manual > /etc/init/mesos-master.override"
       - name: (re)start mesos-slave
-        service: name=mesos-slave state=started enabled=yes
+        service: name=mesos-slave state=restarted enabled=yes

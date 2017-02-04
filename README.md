@@ -83,7 +83,7 @@ This will permanently remove all machines in the cluster and clear the hard driv
 
 Some items on the immediate horizon for this project are:
 
-* [ ] Use vagrant hostmanager plugin to automatically update host OS list of hosts
+* [x] ~~Use vagrant hostmanager plugin to automatically update host OS list of hosts~~ Use only IP addresses for Mesos Agents rather than hostnames.
 * [ ] Add Mesos-DNS (on master most likely)
 * [ ] Add load balancer
 * [ ] Use Vagrant public IP address with optional switch

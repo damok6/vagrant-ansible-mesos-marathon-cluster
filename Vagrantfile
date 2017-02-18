@@ -6,6 +6,8 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 
+mesos_master_ip = "192.168.33.20"
+
 ANSIBLE_GROUPS = {
               "master" => ["master"],
               "nodes" => ["node1", "node2", "node3", "node4"],
@@ -28,8 +30,8 @@ Vagrant.configure(2) do |config|
 	config.vm.provision "shell", path: "install_ansible.sh"
 	
     config.vm.define "master" do |master|
-        master.vm.network "private_network", ip: "192.168.33.20"
-        master.vm.hostname = "master" 
+        master.vm.network "private_network", ip: mesos_master_ip
+        master.vm.hostname = "master"
 		master.vm.provider "virtualbox" do |vb|
 			vb.cpus = 1
 			vb.memory = "1024"
@@ -37,6 +39,9 @@ Vagrant.configure(2) do |config|
         master.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS
+			ansible.extra_vars = {
+				master_ip: mesos_master_ip
+			}
         end
     end
 
@@ -51,6 +56,9 @@ Vagrant.configure(2) do |config|
 			node.vm.provision "guest_ansible", run: "always" do |ansible|
 				ansible.playbook = "playbook.yml"
 				ansible.groups = ANSIBLE_GROUPS
+				ansible.extra_vars = {
+					master_ip: mesos_master_ip
+				}
 			end
 		end
 	end

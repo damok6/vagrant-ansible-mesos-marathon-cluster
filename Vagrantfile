@@ -7,6 +7,7 @@
 # you're doing.
 
 mesos_master_ip = "192.168.33.20"
+mesos_master_ip = "192.168.1.190"
 
 ANSIBLE_GROUPS = {
               "master" => ["master"],
@@ -30,7 +31,8 @@ Vagrant.configure(2) do |config|
 	config.vm.provision "shell", path: "install_ansible.sh"
 	
     config.vm.define "master" do |master|
-        master.vm.network "private_network", ip: mesos_master_ip
+        #master.vm.network "private_network", ip: mesos_master_ip
+		master.vm.network "public_network", ip: mesos_master_ip
         master.vm.hostname = "master"
 		master.vm.provider "virtualbox" do |vb|
 			vb.cpus = 1
@@ -47,7 +49,8 @@ Vagrant.configure(2) do |config|
 
 	(1..4).each do |i|
 		config.vm.define "node#{i}" do |node|
-			node.vm.network "private_network", ip: "192.168.33.2#{i}"
+			#node.vm.network "private_network", ip: "192.168.33.2#{i}"
+			node.vm.network "public_network", ip: "192.168.1.19#{i}"
 			node.vm.hostname = "node#{i}"
 			node.vm.provider "virtualbox" do |vb|
 				vb.cpus = 2

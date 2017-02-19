@@ -3,10 +3,18 @@
   remote_user: vagrant
   become: yes
   become_method: sudo
+  vars:
+    master_ip: master_ip
+    agent_ips: agent_ips
   tasks:
+      - debug: var=master_ip
+      - debug: var=agent_ips
+      - name: Configure hosts file with master IP
+        lineinfile: dest=/etc/hosts regexp="master" line="{{master_ip}} master" state=present
+      - name: Configure hosts file with agent IPs
+        lineinfile: dest=/etc/hosts regexp="{{ item.key }}" line="{{ item.value }} {{ item.key }}" state=present
+        with_dict: "{{ agent_ips }}"
       - include: install_java_8.yml
-      - name: update hosts file
-        template: src=./hosts.j2 dest=/etc/hosts
       - name: add mesos key
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
       - name: add mesos repo
@@ -18,9 +26,9 @@
       - name: configure zookeeper ID
         shell: echo "1" | sudo tee /etc/zookeeper/conf/myid
       - name: set zookeeper master
-        replace: dest=/etc/mesos/zk regexp="localhost" replace="192.168.33.20"
+        replace: dest=/etc/mesos/zk regexp="localhost" replace="{{master_ip}}"
       - name: set explicit master ip
-        shell: sh -c "echo 192.168.33.20 > /etc/mesos-master/ip"
+        shell: sh -c "echo {{master_ip}} > /etc/mesos-master/ip"
       - name: restart zookeeper
         service: name=zookeeper state=restarted enabled=yes
       - name: (re)start mesos-master
@@ -36,7 +44,7 @@
         docker_container:
           name: mlb
           image: mesosphere/marathon-lb
-          command: sse --group external --marathon http://192.168.33.20:8080
+          command: sse --group external --marathon http://{{master_ip}}:8080
           state: started
           privileged: yes
           restart_policy: always
@@ -52,9 +60,14 @@
   become: yes
   become_method: sudo
   tasks:
+      - name: Configure hosts file with master IP
+        lineinfile: dest=/etc/hosts regexp="master" line="{{master_ip}} master" state=present
+      - name: Configure hosts file with agent IPs
+        lineinfile: dest=/etc/hosts regexp="{{ item.key }}" line="{{ item.value }} {{ item.key }}" state=present
+        with_dict: "{{ agent_ips }}"
+      - debug: var=master_ip
+      - debug: var=agent_ips
       - include: install_java_8.yml
-      - name: update hosts file
-        template: src=./hosts.j2 dest=/etc/hosts
       - name: add mesos key
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
       - name: add mesos repo
@@ -70,7 +83,7 @@
       - name: Force Mesos Slaves to be resolved by IP addresses instead of hostnames
         lineinfile: dest=/etc/mesos-slave/hostname_lookup create=yes line="false"
       - name: set zookeeper master
-        replace: dest=/etc/mesos/zk regexp="localhost" replace="192.168.33.20"
+        replace: dest=/etc/mesos/zk regexp="localhost" replace="{{master_ip}}"
       - name: stop zookeeper
         service: name=zookeeper state=stopped
       - name: disable zookeeper

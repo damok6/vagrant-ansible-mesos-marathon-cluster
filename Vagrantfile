@@ -13,26 +13,26 @@
 # Set the 'public', 'mesos_master_ip' and 'agent_ips' variables
 # to suit your needs:
 ######################################################################
-#public = false
-public = true
+public = false
+#public = true
 
 if public == true
 	puts 'Using public network, with static IP addresses.'
 	mesos_master_ip = "192.168.1.190"
 	agent_ips = {
-		'node1' => '192.168.1.191',
-		'node2' => '192.168.1.192',
-		'node3' => '192.168.1.193',
-		'node4' => '192.168.1.194'
+		'agent1' => '192.168.1.191',
+		'agent2' => '192.168.1.192',
+		'agent3' => '192.168.1.193',
+		'agent4' => '192.168.1.194'
 	}
 else
 	puts 'Using private network.'
 	mesos_master_ip = "192.168.33.20"
 	agent_ips = {
-		'node1' => '192.168.33.21',
-		'node2' => '192.168.33.22',
-		'node3' => '192.168.33.23',
-		'node4' => '192.168.33.24',
+		'agent1' => '192.168.33.21',
+		'agent2' => '192.168.33.22',
+		'agent3' => '192.168.33.23',
+		'agent4' => '192.168.33.24',
 	}
 end
 puts agent_ips
@@ -43,9 +43,6 @@ ANSIBLE_GROUPS = {
               "nodes" => agent_ips.keys,
               "all_groups:children" => ["master", "nodes"]
             }
-			
-puts ANSIBLE_GROUPS
-puts agent_ips.keys
 
 Vagrant.configure(2) do |config|
 #    config.vm.box = "ubuntu/xenial64"

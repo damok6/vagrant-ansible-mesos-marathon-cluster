@@ -1,0 +1,40 @@
+{
+  "id": "/basic-3",
+  "cmd": "python3 -m http.server 8080",
+  "cpus": 0.2,
+  "mem": 32,
+  "disk": 0,
+  "instances": 2,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "python:3",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "servicePort": 10000,
+          "protocol": "tcp",
+          "labels": {}
+        }
+      ],
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": false
+    }
+  },
+  "labels": {
+    "HAPROXY_GROUP": "external",
+    "HAPROXY_0_VHOST": "192.168.1.190",
+    "HAPROXY_0_HTTP_BACKEND_PROXYPASS_PATH": "/basic-3"
+  },
+  "portDefinitions": [
+    {
+      "port": 10000,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

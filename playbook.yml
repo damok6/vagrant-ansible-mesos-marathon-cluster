@@ -29,6 +29,8 @@
         replace: dest=/etc/mesos/zk regexp="localhost" replace="{{master_ip}}"
       - name: set explicit master ip
         shell: sh -c "echo {{master_ip}} > /etc/mesos-master/ip"
+      - name: Force Mesos Master to be resolved by IP addresse instead of hostname
+        lineinfile: dest=/etc/mesos-master/hostname_lookup create=yes line="false"
       - name: restart zookeeper
         service: name=zookeeper state=restarted enabled=yes
       - name: (re)start mesos-master

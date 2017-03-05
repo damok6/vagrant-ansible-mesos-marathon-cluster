@@ -1,0 +1,43 @@
+---
+- hosts: kube
+  remote_user: vagrant
+  become: yes
+  become_method: sudo
+  vars:
+    master_ip: master_ip
+    agent_ips: agent_ips
+    kube_ip: kube_ip
+  tasks:
+      - name: Download Go
+        get_url:
+          url: https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz
+          dest: /home/vagrant/
+      - name: Extract Go
+        unarchive:
+          src: /home/vagrant/go1.7.4.linux-amd64.tar.gz
+          dest: /home/vagrant/
+      - file: 
+          dest: /usr/local/go
+          state: absent
+      - command: chdir=/home/vagrant/ mv go /usr/local
+      - name: Add Go to path
+        lineinfile: dest=/home/vagrant/.profile create=yes line="export PATH=/usr/local/go/bin:$PATH"
+      - name: Create larger swap space for km make
+        script: create_swap.sh
+      - name: Build km
+        script: build_km.sh
+        become: yes
+        become_user: vagrant
+        environment:
+          PATH: /usr/local/go/bin:{{ ansible_env.PATH }}
+      - name: Destroy the swap space
+        script: destroy_swap.sh
+      - name: Add relevant paths and environment variables for km
+        lineinfile: dest=~/.profile create=yes line="{{item.line}}"
+        with_items:
+          - {line: "export PATH=/home/vagrant/kube-mesos-framework/_output/local/go/bin:$PATH"}
+          - {line: "export MESOS_MASTER=zk://{{master_ip}}:2181/mesos"}
+          - {line: "export KUBERNETES_MASTER_IP={{kube_ip}}"}
+          - {line: "export KUBERNETES_MASTER=http://{{kube_ip}}:8888"}
+        become: yes
+        become_user: vagrant

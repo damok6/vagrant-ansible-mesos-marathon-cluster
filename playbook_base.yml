@@ -1,0 +1,20 @@
+---
+- hosts: all
+  remote_user: vagrant
+  become: yes
+  become_method: sudo
+  vars:
+    master_ip: master_ip
+    agent_ips: agent_ips
+    kube_ip: kube_ip
+  tasks:
+      - name: Configure hosts file with master IP
+        lineinfile: dest=/etc/hosts regexp="master" line="{{master_ip}} master" state=present
+      - name: Configure hosts file with agent IPs
+        lineinfile: dest=/etc/hosts regexp="{{ item.key }}" line="{{ item.value }} {{ item.key }}" state=present
+        with_dict: "{{ agent_ips }}"
+      - name: Configure hosts file with Kubernetes master IP
+        lineinfile: dest=/etc/hosts regexp="kube" line="{{kube_ip}} kube" state=present
+      - include: install_java_8.yml
+      - name: install docker
+        shell: curl -fsSL https://get.docker.com/ | sudo sh

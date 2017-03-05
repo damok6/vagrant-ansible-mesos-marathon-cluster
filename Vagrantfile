@@ -14,7 +14,10 @@
 # to suit your needs:
 ######################################################################
 public = false
-#public = true
+public = true
+
+use_kubernetes = false
+use_kubernetes = true
 
 if public == true
 	puts 'Using public network, with static IP addresses.'
@@ -25,6 +28,7 @@ if public == true
 		'agent3' => '192.168.1.193',
 		'agent4' => '192.168.1.194'
 	}
+	kube_ip = "192.168.1.189"
 else
 	puts 'Using private network.'
 	mesos_master_ip = "192.168.33.20"
@@ -34,6 +38,7 @@ else
 		'agent3' => '192.168.33.23',
 		'agent4' => '192.168.33.24',
 	}
+	kube_ip = "192.168.33.19"
 end
 puts agent_ips
 ######################################################################
@@ -41,7 +46,8 @@ puts agent_ips
 ANSIBLE_GROUPS = {
               "master" => ["master"],
               "nodes" => agent_ips.keys,
-              "all_groups:children" => ["master", "nodes"]
+			  "kube" => ["kube"],
+              "all_groups:children" => ["master", "nodes", "kube"]
             }
 
 Vagrant.configure(2) do |config|
@@ -102,5 +108,49 @@ Vagrant.configure(2) do |config|
 			end
 		end
 	end
-
+	
+	if use_kubernetes == true
+		config.vm.define "kube" do |kube|
+			if public == true
+				kube.vm.network "public_network", ip: kube_ip
+			else
+				kube.vm.network "private_network", ip: kube_ip
+			end
+			kube.vm.hostname = "kube"
+			kube.vm.provider "virtualbox" do |vb|
+				vb.cpus = 1
+				vb.memory = "1024"
+			end
+			kube.vm.provision "base", type: "guest_ansible" do |ansible|
+			#kube.vm.provision "base", type: "guest_ansible", run: "always" do |ansible|
+				ansible.playbook = "playbook_base.yml"
+				ansible.groups = ANSIBLE_GROUPS
+				ansible.extra_vars = {
+					master_ip: mesos_master_ip,
+					agent_ips: agent_ips,
+					kube_ip: kube_ip
+				}
+			end
+			# vagrant provision kube --provision-with initial
+			kube.vm.provision "initial", type: "guest_ansible" do |ansible|
+			#kube.vm.provision "initial", type: "guest_ansible", run: "always" do |ansible|
+				ansible.playbook = "playbook_initial.yml"
+				ansible.groups = ANSIBLE_GROUPS
+				ansible.extra_vars = {
+					master_ip: mesos_master_ip,
+					agent_ips: agent_ips,
+					kube_ip: kube_ip
+				}
+			end
+			# playbook_always
+			kube.vm.provision "guest_ansible", run: "always" do |ansible|
+				ansible.playbook = "playbook.yml"
+				ansible.groups = ANSIBLE_GROUPS
+				ansible.extra_vars = {
+					master_ip: mesos_master_ip,
+					agent_ips: agent_ips
+				}
+			end
+		end
+	end
 end

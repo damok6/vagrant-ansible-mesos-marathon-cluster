@@ -41,3 +41,29 @@
           - {line: "export KUBERNETES_MASTER=http://{{kube_ip}}:8888"}
         become: yes
         become_user: vagrant
+      - name: install pip
+        apt: name=python-pip update_cache=yes
+      - name: Install Python Docker 
+        pip:
+          name: docker-py
+      - name: Deploy etcd
+        docker_container:
+          name: etcd
+          image: quay.io/coreos/etcd:v2.2.1
+          restart_policy: always
+          hostname: $(uname -n)
+          command: --listen-client-urls http://0.0.0.0:4001 --advertise-client-urls http://${KUBERNETES_MASTER_IP}:4001
+          state: started
+          privileged: yes
+          ports:
+            - "4001:4001"
+            - "7001:7001"
+      - name: Create cloud config file
+        lineinfile: dest=/home/vagrant/mesos-cloud.conf create=yes line="{{item.line}}"
+        with_items:
+          - {line: "[mesos-cloud]"}
+          - {line: "        mesos-master = zk://{{master_ip}}:2181/mesos"}
+        become: yes
+        become_user: vagrant
+      - name: Install kubectl
+        script: install_kubectl.sh

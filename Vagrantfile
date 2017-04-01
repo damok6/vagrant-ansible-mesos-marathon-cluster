@@ -76,6 +76,15 @@ Vagrant.configure(2) do |config|
 			vb.cpus = 1
 			vb.memory = "1024"
 		end
+		master.vm.provision "base", type: "guest_ansible" do |ansible|
+			ansible.playbook = "playbook_base.yml"
+			ansible.groups = ANSIBLE_GROUPS
+			ansible.extra_vars = {
+				master_ip: mesos_master_ip,
+				agent_ips: agent_ips,
+				kube_ip: kube_ip
+			}
+		end
         master.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS
@@ -97,6 +106,15 @@ Vagrant.configure(2) do |config|
 			node.vm.provider "virtualbox" do |vb|
 				vb.cpus = 2
 				vb.memory = "3072"
+			end
+			node.vm.provision "base", type: "guest_ansible" do |ansible|
+				ansible.playbook = "playbook_base.yml"
+				ansible.groups = ANSIBLE_GROUPS
+				ansible.extra_vars = {
+					master_ip: mesos_master_ip,
+					agent_ips: agent_ips,
+					kube_ip: kube_ip
+				}
 			end
 			node.vm.provision "guest_ansible", run: "always" do |ansible|
 				ansible.playbook = "playbook.yml"

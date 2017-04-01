@@ -9,20 +9,12 @@
   tasks:
       - debug: var=master_ip
       - debug: var=agent_ips
-      - name: Configure hosts file with master IP
-        lineinfile: dest=/etc/hosts regexp="master" line="{{master_ip}} master" state=present
-      - name: Configure hosts file with agent IPs
-        lineinfile: dest=/etc/hosts regexp="{{ item.key }}" line="{{ item.value }} {{ item.key }}" state=present
-        with_dict: "{{ agent_ips }}"
-      - include: install_java_8.yml
       - name: add mesos key
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
       - name: add mesos repo
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
       - name: install mesos marathon pip
         apt: name=mesos,marathon,python-pip update_cache=yes
-      - name: install docker
-        shell: curl -fsSL https://get.docker.com/ | sudo sh
       - name: configure zookeeper ID
         shell: echo "1" | sudo tee /etc/zookeeper/conf/myid
       - name: set zookeeper master
@@ -62,22 +54,14 @@
   become: yes
   become_method: sudo
   tasks:
-      - name: Configure hosts file with master IP
-        lineinfile: dest=/etc/hosts regexp="master" line="{{master_ip}} master" state=present
-      - name: Configure hosts file with agent IPs
-        lineinfile: dest=/etc/hosts regexp="{{ item.key }}" line="{{ item.value }} {{ item.key }}" state=present
-        with_dict: "{{ agent_ips }}"
       - debug: var=master_ip
       - debug: var=agent_ips
-      - include: install_java_8.yml
       - name: add mesos key
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
       - name: add mesos repo
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
       - name: install mesos 
         apt: name=mesos update_cache=yes
-      - name: install docker
-        shell: curl -fsSL https://get.docker.com/ | sudo sh
       - name: configure containerizers
         lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
       - name: lengthen registration timeout

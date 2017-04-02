@@ -49,6 +49,10 @@
             - "10000:10000"
           env:
             PORTS: 9090
+      - name: Run Mesos-DNS
+        shell: ./mesos-dns-v0.6.0-linux-amd64 &
+        args:
+          chdir: /home/vagrant/
 - hosts: nodes
   remote_user: vagrant
   become: yes

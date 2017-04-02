@@ -1,4 +1,12 @@
 ---
+- hosts: master
+  remote_user: vagrant
+  become: yes
+  become_method: sudo
+  tasks:
+      - name: Get Mesos-DNS
+        script: get_mesos_dns.sh
+      - command: chdir=/vagrant/ cp config.json /home/vagrant/
 - hosts: kube
   remote_user: vagrant
   become: yes

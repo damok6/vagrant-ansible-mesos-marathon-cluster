@@ -85,6 +85,16 @@ Vagrant.configure(2) do |config|
 				kube_ip: kube_ip
 			}
 		end
+		# vagrant provision master --provision-with initial
+		master.vm.provision "initial", type: "guest_ansible" do |ansible|
+			ansible.playbook = "playbook_initial.yml"
+			ansible.groups = ANSIBLE_GROUPS
+			ansible.extra_vars = {
+				master_ip: mesos_master_ip,
+				agent_ips: agent_ips,
+				kube_ip: kube_ip
+			}
+		end
         master.vm.provision "guest_ansible", run: "always" do |ansible|
             ansible.playbook = "playbook.yml"
             ansible.groups = ANSIBLE_GROUPS

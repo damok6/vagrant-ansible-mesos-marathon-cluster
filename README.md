@@ -10,7 +10,7 @@ Uses Ansible installed in the guest OS, so it does not require a host OS that su
 Most of this is based on the excellent [Mesosphere tutorials](https://open.mesosphere.com/advanced-course/recreating-the-cluster-using-ansible/), with some modifications to run on Ubuntu Virtual Machines instead of CentOS.
 
 
-##Usage
+## Usage
 
 This Vagrantfile uses Ansible to configure the Mesos master and Mesos agent Virtual Machines (VMs). It uses an Ansible installation in the guest OS so there is no need to install anything in the host OS besides Vagrant and VirtualBox.
 
@@ -30,15 +30,15 @@ Vagrant also requires the `guest_ansible` plugin, which if not already installed
 
 TODO: Change all 'node' references to say 'agent'.
 
-This script runs a single Mesos master and up to 4 Mesos agents. At present, it uses the Vagrant private network for cross-VM communication, so you will only be able to access the VMs from the host OS. The names of the guest VMs are `master`, `node1`, `node2`, `node3` and `node4`. Later we can bring all of the VMs up at once, but at first we should test a minimal cluster with one master and one agent node VM. 
+This script runs a single Mesos master and up to 4 Mesos agents. At present, it uses the Vagrant private network for cross-VM communication, so you will only be able to access the VMs from the host OS. The names of the guest VMs are `master`, `agent1`, `agent2`, `agent3` and `agent4`. Later we can bring all of the VMs up at once, but at first we should test a minimal cluster with one master and one agent node VM. 
 
 You must first clone or download this repository to your computer and `cd` into the project's root directory. To bring up this minimal cluster you can tell the script to bring up only the Mesos master and the first Mesos agent by using the command. 
 
-```vagrant up master node1```
+```vagrant up master agent1```
 
 This will take some time to provision the servers the first time it is run. When this completes, you can skip to the Testing section to test the minimal cluster or proceed to bring up the remaining Mesos agent VMs by using the command:
 
-```vagrant up node2 node3 node4```
+```vagrant up agent2 agent3 agent4```
 
 In the future, when you're sure everything works as expected, you can bring the entire cluster back up by using the command:
 
@@ -51,6 +51,12 @@ When the cluster is successfully provisioned and running we can skip to testing 
 ### TODO: Public networking
 
 Default should be private within-host networking, but show how public networking can be used.
+
+### TODO: Kubernetes-Mesos VM
+
+Work in progress, can be brought up with:
+
+```vagrant up kube```
 
 ### Testing
 
@@ -73,9 +79,9 @@ If you wish to simply stop the cluster to start again later without needing to r
 
 Or if you wish to stop a single VM to reduce memory consumption or to test cluster fail-over, you can run:
 
-```vagrant halt node4```
+```vagrant halt agent4```
 
-to take down `node4` for example.
+to take down `agent4` for example.
 
 If you wish to permanently destroy all machines that make up the cluster you can run:
 
@@ -83,18 +89,18 @@ If you wish to permanently destroy all machines that make up the cluster you can
 
 This will permanently remove all machines in the cluster and clear the hard drive space occupied by the VirtualBox images. If you take this option you will have to re-run the VM instanation process next time you run `vagrant up`, so make sure you are happy with this before destroying all VMs.
 
-##Notes
+## Notes
 
-###Marathon Load Balancer
+### Marathon Load Balancer
 
 TODO: Examples of how to use the load balancer.
 
-###Guest Additions Issues
+### Guest Additions Issues
 
 Occasionally when bringing back up a VM, you may encounter the error:
 
 ```
-node1: /vagrant => C:/Users/Damian/Documents/Vagrant/ansible-mesos-vagrant-cluster
+agent1: /vagrant => C:/Users/Damian/Documents/Vagrant/ansible-mesos-vagrant-cluster
 Vagrant was unable to mount VirtualBox shared folders. This is usually
 because the filesystem "vboxsf" is not available. This filesystem is
 made available via the VirtualBox Guest Additions and kernel module.
@@ -115,12 +121,12 @@ This can be rectified by updating the Vagrant VM image using the command `vagran
 
 Alternatively you can install the [vagrant-vbguest](https://github.com/dotless-de/vagrant-vbguest) plugin which should ensure that up-to-date Guest Additions are built for the box when necessary.
 
-##ToDos
+## ToDos
 
 Some items on the immediate horizon for this project are:
 
 * [x] ~~Use vagrant hostmanager plugin to automatically update host OS list of hosts~~ Use only IP addresses for Mesos Agents rather than hostnames.
-* [ ] Add Mesos-DNS (on master most likely)
+* [x] Add Mesos-DNS (on master)
 * [x] Add Marathon Load Balancer
-* [ ] Use Vagrant public IP address with optional switch
+* [x] Use Vagrant public IP address with optional switch
 * [x] Change all nodes to be referred to as agents

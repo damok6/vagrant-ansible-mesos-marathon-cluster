@@ -28,8 +28,6 @@ Vagrant also requires the `guest_ansible` plugin, which if not already installed
 
 ### Running
 
-TODO: Change all 'node' references to say 'agent'.
-
 This script runs a single Mesos master and up to 4 Mesos agents. At present, it uses the Vagrant private network for cross-VM communication, so you will only be able to access the VMs from the host OS. The names of the guest VMs are `master`, `agent1`, `agent2`, `agent3` and `agent4`. Later we can bring all of the VMs up at once, but at first we should test a minimal cluster with one master and one agent node VM. 
 
 You must first clone or download this repository to your computer and `cd` into the project's root directory. To bring up this minimal cluster you can tell the script to bring up only the Mesos master and the first Mesos agent by using the command. 
@@ -40,7 +38,7 @@ This will take some time to provision the servers the first time it is run. When
 
 ```vagrant up agent2 agent3 agent4```
 
-In the future, when you're sure everything works as expected, you can bring the entire cluster back up by using the command:
+In the future, when you're sure everything works as expected, you can bring the entire cluster (including the upcoming Kubernetes-Mesos node) back up by using the command:
 
 ```vagrant up```
 

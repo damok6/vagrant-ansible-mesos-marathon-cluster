@@ -64,8 +64,8 @@
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=E56151BF
       - name: add mesos repo
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
-      - name: install mesos 
-        apt: name=mesos update_cache=yes
+      - name: install mesos pip
+        apt: name=mesos,python-pip update_cache=yes
       - name: configure containerizers
         lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
       - name: lengthen registration timeout

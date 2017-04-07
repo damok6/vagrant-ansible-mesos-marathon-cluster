@@ -14,7 +14,7 @@
 # to suit your needs:
 ######################################################################
 public = false
-public = true
+#public = true
 
 use_kubernetes = false
 use_kubernetes = true
@@ -115,7 +115,7 @@ Vagrant.configure(2) do |config|
 			node.vm.hostname = "#{host}"
 			node.vm.provider "virtualbox" do |vb|
 				vb.cpus = 2
-				vb.memory = "3072"
+				vb.memory = "2042"
 			end
 			node.vm.provision "base", type: "guest_ansible" do |ansible|
 				ansible.playbook = "playbook_base.yml"

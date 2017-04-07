@@ -28,3 +28,11 @@ echo "Uploading dependencies to server:"
 
 cmd='scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P '$PORT' deps/* root@'$IP':/opt/lampp/htdocs/'
 $cmd
+
+echo ""
+echo "Done, files are now available at:"
+
+for f in deps/*
+do
+    echo '  http://'${MESOS_MASTER_IP}'/file-server/'$(basename $f)
+done

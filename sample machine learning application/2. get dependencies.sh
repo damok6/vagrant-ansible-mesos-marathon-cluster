@@ -1,5 +1,5 @@
 # Must run with 
-# source 1.\ deploy\ file\ server.sh
+# source 2.\ get\ dependencies.sh
 
 if [[ -z "${MESOS_MASTER_IP}" ]]; then
   MESOS_MASTER_IP="192.168.33.20"

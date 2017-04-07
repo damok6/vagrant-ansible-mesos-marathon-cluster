@@ -27,7 +27,7 @@
   },
   "labels": {
     "HAPROXY_GROUP": "external",
-    "HAPROXY_0_VHOST": "192.168.1.190",
+    "HAPROXY_0_VHOST": "192.168.33.20",
     "HAPROXY_0_HTTP_BACKEND_PROXYPASS_PATH": "/basic-3",
     "HAPROXY_0_PATH":"/basic-3"
   },

@@ -1,5 +1,5 @@
 # Must run with 
-# source 3.\ upload\ dependencies.sh
+# source 4.\ deploy\ kafka.sh
 
 if [[ -z "${MESOS_MASTER_IP}" ]]; then
   MESOS_MASTER_IP="192.168.33.20"
@@ -18,7 +18,6 @@ curl -H "Content-Type: application/json" -X POST -d '
     "http://'${MESOS_MASTER_IP}'/file-server/kafka_2.11-0.10.2.0.tgz"
   ],
     "ports":[0]
-
 }
 ' http://${MESOS_MASTER_IP}:8080/v2/apps
 

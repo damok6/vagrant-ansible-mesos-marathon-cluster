@@ -1,5 +1,5 @@
 # Must run with 
-# source 1.\ deploy\ xampp.sh
+# source 1.\ deploy\ file\ server.sh
 
 # Will set Mesos master host IP only if it is not already set
 if [[ -z "${MESOS_MASTER_IP}" ]]; then
@@ -14,16 +14,24 @@ curl -H "Content-Type: application/json" -X POST -d '
 	  "image": "tomsik68/xampp",
       "network": "BRIDGE",
       "portMappings": [
-        { "containerPort": 22, "hostPort": 0, "servicePort": 22, "protocol": "tcp" },
-		{ "containerPort": 80, "hostPort": 0, "servicePort": 80, "protocol": "tcp" }
+        { "containerPort": 22, "hostPort": 0, "servicePort": 0, "protocol": "tcp" },
+		{ "containerPort": 80, "hostPort": 0, "servicePort": 0, "protocol": "tcp" }
       ]
     }
   },  
   "labels": {
     "HAPROXY_GROUP": "external",
     "HAPROXY_1_VHOST": "'${MESOS_MASTER_IP}'",
-    "HAPROXY_1_HTTP_BACKEND_PROXYPASS_PATH": "/file-server"
+    "HAPROXY_1_HTTP_BACKEND_PROXYPASS_PATH": "/file-server",
+    "HAPROXY_1_PATH":"/file-server"
   },
+  "portDefinitions": [
+    {
+      "port": 0,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
   "id": "file-server",
   "instances": 1,
   "cpus": 0.25,

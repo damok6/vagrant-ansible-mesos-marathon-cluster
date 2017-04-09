@@ -14,7 +14,7 @@
       - name: add mesos repo
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
       - name: install mesos marathon pip
-        apt: name=mesos,marathon,python-pip update_cache=yes
+        apt: name=mesos,marathon,python-pip,python-dev update_cache=yes
       - name: configure zookeeper ID
         shell: echo "1" | sudo tee /etc/zookeeper/conf/myid
       - name: set zookeeper master
@@ -65,7 +65,7 @@
       - name: add mesos repo
         shell: echo "deb http://repos.mesosphere.com/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
       - name: install mesos pip
-        apt: name=mesos,python-pip update_cache=yes
+        apt: name=mesos,python-pip,python-dev update_cache=yes
       - name: configure containerizers
         lineinfile: dest=/etc/mesos-slave/containerizers create=yes line="docker,mesos"
       - name: lengthen registration timeout

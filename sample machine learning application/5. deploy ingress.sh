@@ -10,7 +10,7 @@ echo "Deploying Ingress:"
 curl -H "Content-Type: application/json" -X POST -d '
 {
   "id": "/ingress",
-  "cmd": "pip install -r data_ingress_rest_requirements.txt;python data_ingress_rest.py",
+  "cmd": "pip install -r data_ingress_rest_requirements.txt;python -u data_ingress_rest.py",
   "cpus": 0.2,
   "mem": 128,
   "instances": 2,

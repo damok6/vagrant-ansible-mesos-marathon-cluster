@@ -11,7 +11,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as pyplot
 import cStringIO
-
+import requests
+import json
+from cassandra.cluster import Cluster
+import numpy as np
+import pickle
 
 global chosen_port
 if 'PORT0' in os.environ:
@@ -37,17 +41,52 @@ class RequestHandler(tornado.web.RequestHandler):
 
         self.set_header('Content-Type', 'image/png')
         self.write(figdata.getvalue())
+        self.finish()
 
     def get_graph_bytes(self):
         format = "png"
         figdata = cStringIO.StringIO()
 
-        pyplot.plot([1, 2, 3, 4], [1, 3, 2, 4])
-        pyplot.scatter([1, 2, 3, 4], [1, 2, 3, 4], color='g')
+        model_x, model_y, data_x, data_y = self.get_model_data()
+        pyplot.plot(model_x, model_y)
+        pyplot.scatter(data_x, data_y, color='g')
 
         pyplot.savefig(figdata, format=format)
+        pyplot.close()
 
         return figdata
+
+    def get_model_data(self):
+        model_x = []
+        model_y = []
+        data_x = []
+        data_y = []
+
+        request_text = requests.get('http://master:8123/v1/services/_cassandra._tcp.marathon.slave.mesos.').text
+        request_dict = json.loads(request_text)
+
+        cass_ip = request_dict[0]['ip']
+        cass_port = request_dict[0]['port']
+
+        cluster = Cluster([cass_ip], int(cass_port))
+        session = cluster.connect()
+        session.set_keyspace('ml_db')
+        rows = session.execute('select model from models where model_id=1 order by time desc limit 1')
+        for row in rows:
+            model_pickle = row.model
+            model = pickle.loads(model_pickle)
+            model_x = np.linspace(0, 70, 71)
+            model_y = model.predict([[x] for x in model_x])
+
+        rows = session.execute('select samples from all_raw_data')
+        for row in rows:
+            sample = json.loads(row.samples)
+            data_x.append(sample[1])
+            data_y.append(sample[0])
+
+        session.shutdown()
+
+        return model_x, model_y, data_x, data_y
 
 
 def main():

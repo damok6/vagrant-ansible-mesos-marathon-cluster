@@ -9,6 +9,7 @@ import requests
 import os
 import kafka
 import numpy as np
+import json
 
 global chosen_port
 if 'PORT0' in os.environ:
@@ -49,10 +50,10 @@ class RequestHandler(tornado.web.RequestHandler):
         # squash [0, 70) to be [3pi/8, 5pi/8)
         scaled_x = (input_sample/max_input * np.pi/4 + 3*np.pi/8)
         # gentle curve peaking at 35=>0.9 with gaussian noise:
-        mu, sigma = 0, 0.05
+        mu, sigma = 0, 0.02
         output_sample = 0.9*np.sin(scaled_x) + np.random.normal(mu, sigma, 1)[0]
 
-        return (output_sample, input_sample)
+        return json.dumps([output_sample, input_sample])
 
 
 def main():

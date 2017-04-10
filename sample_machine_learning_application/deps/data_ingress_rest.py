@@ -8,6 +8,7 @@ import json
 import requests
 import os
 import kafka
+import numpy as np
 
 global chosen_port
 if 'PORT0' in os.environ:
@@ -35,8 +36,24 @@ class RequestHandler(tornado.web.RequestHandler):
 
     def post(self, *args, **kwargs):
         print "Post data over Kafka"
-        self.kafka_producer.send('test', b'some_message_bytes')
+
+        # self.kafka_producer.send('test', b'some_message_bytes')
+        self.kafka_producer.send('test', str(self.generate_sample_data()))
+
         self.write(self.page)
+
+    def generate_sample_data(self):
+        max_input = 70
+        input_sample = np.random.uniform(0, max_input)  # Uniformly Random in range [0,70)
+
+        # squash [0, 70) to be [3pi/8, 5pi/8)
+        scaled_x = (input_sample/max_input * np.pi/4 + 3*np.pi/8)
+        # gentle curve peaking at 35=>0.9 with gaussian noise:
+        mu, sigma = 0, 0.05
+        output_sample = 0.9*np.sin(scaled_x) + np.random.normal(mu, sigma, 1)[0]
+
+        return (output_sample, input_sample)
+
 
 def main():
 
@@ -49,7 +66,7 @@ def main():
     kafka_producer = kafka.KafkaProducer(bootstrap_servers=bootstrap_servers)
 
     applicaton = tornado.web.Application([
-        (r"/(.*)", RequestHandler, {"kafka_producer":kafka_producer}),
+        (r"/(.*)", RequestHandler, {"kafka_producer": kafka_producer}),
     ],
         autoreload=True)
 

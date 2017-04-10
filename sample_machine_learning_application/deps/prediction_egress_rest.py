@@ -49,6 +49,7 @@ class RequestHandler(tornado.web.RequestHandler):
 
         return figdata
 
+
 def main():
 
     applicaton = tornado.web.Application([

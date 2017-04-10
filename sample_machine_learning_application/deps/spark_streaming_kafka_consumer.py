@@ -37,13 +37,17 @@ from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
+import pip
+pip.main(['install', 'cql'])
+import cql
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: spark_streaming_kafka_consumer.py <zk> <topic>", file=sys.stderr)
         exit(-1)
 
     sc = SparkContext(appName="PythonStreamingKafka")
-    ssc = StreamingContext(sc, 5)
+    ssc = StreamingContext(sc, 2)
 
     zkQuorum, topic = sys.argv[1:]
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 1})

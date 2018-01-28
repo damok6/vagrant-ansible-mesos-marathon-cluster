@@ -13,7 +13,7 @@ curl -H "Content-Type: application/json" -X POST -d '
   "cmd": "pip install -r data_ingress_rest_requirements.txt;python -u data_ingress_rest.py",
   "cpus": 0.2,
   "mem": 128,
-  "instances": 2,
+  "instances": 1,
   "uris": [
     "http://'${MESOS_MASTER_IP}'/file-server/data_ingress_rest.py",
 	"http://'${MESOS_MASTER_IP}'/file-server/data_ingress_rest_requirements.txt"

@@ -10,12 +10,12 @@ echo "Deploying Kafka:"
 curl -H "Content-Type: application/json" -X POST -d '
 {
   "id": "/kafka",
-  "cmd": "kafka_2.11-0.10.2.0/bin/kafka-server-start.sh kafka_2.11-0.10.2.0/config/server.properties --override zookeeper.connect=master:2181/kafka --override port=$PORT0 --override auto.create.topics.enable=true",
+  "cmd": "kafka_2.11-1.0.0/bin/kafka-server-start.sh kafka_2.11-1.0.0/config/server.properties --override zookeeper.connect=master:2181/kafka --override port=$PORT0 --override auto.create.topics.enable=true",
   "cpus": 0.5,
   "mem": 256,
   "instances": 1,
   "uris": [
-    "http://'${MESOS_MASTER_IP}'/file-server/kafka_2.11-0.10.2.0.tgz"
+    "http://'${MESOS_MASTER_IP}'/file-server/kafka_2.11-1.0.0.tgz"
   ],
     "ports":[0]
 }

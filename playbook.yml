@@ -30,7 +30,7 @@
       - name: Stop mesos-slave
         service: name=mesos-slave state=stopped enabled=yes
       - name: (re)start marathon
-        service: name=marathon state=restarted enabled=yes
+        service: name=marathon state=stopped enabled=yes
       - name: Install Python Docker 
         pip:
           name: docker-py
@@ -49,6 +49,8 @@
             - "10000:10000"
           env:
             PORTS: 9090
+      - name: Run Mesos-DNS
+        shell: marathon --master=zk://{{master_ip}}:2181/mesos &
       - name: Run Mesos-DNS
         shell: ./mesos-dns-v0.6.0-linux-amd64 &
         args:

@@ -49,7 +49,7 @@
             - "10000:10000"
           env:
             PORTS: 9090
-      - name: Run Mesos-DNS
+      - name: Launch Marathon using new method that does not involve Upstart
         shell: marathon --master=zk://{{master_ip}}:2181/mesos &
       - name: Run Mesos-DNS
         shell: ./mesos-dns-v0.6.0-linux-amd64 &
